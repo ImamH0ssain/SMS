@@ -1,0 +1,233 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  REGISTRY_STAFF
+  STUDENT
+}
+
+enum EnrolmentStatus {
+  ENROLLED
+  DEFERRED
+  WITHDRAWN
+  COMPLETED
+}
+
+enum PaymentStatus {
+  ACTIVE
+  VOIDED
+}
+
+enum ResultStatus {
+  DRAFT
+  WITHHELD
+  PUBLISHED
+}
+
+model User {
+  id                    String            @id @default(cuid())
+  name                  String
+  role                  UserRole
+  isDemoPersona         Boolean           @default(false)
+  studentId             String?           @unique
+  student               Student?          @relation("StudentUser", fields: [studentId], references: [id], onDelete: Cascade)
+  assessmentsCreated    Assessment[]      @relation("AssessmentCreator")
+  resultsPublished      Result[]          @relation("ResultPublisher")
+  adjustmentsCreated    FeeAdjustment[]   @relation("AdjustmentCreator")
+  auditEvents           AuditEvent[]      @relation("AuditActor")
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+}
+
+model Programme {
+  id                    String            @id @default(cuid())
+  code                  String            @unique
+  name                  String
+  isActive              Boolean           @default(true)
+  students              Student[]
+  modules               Module[]
+  feeRules              ProgrammeFeeRule[]
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+}
+
+model Module {
+  id                    String            @id @default(cuid())
+  code                  String            @unique
+  name                  String
+  programmeId           String
+  programme             Programme         @relation(fields: [programmeId], references: [id], onDelete: Restrict)
+  assessments           Assessment[]
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+
+  @@index([programmeId])
+}
+
+model Student {
+  id                    String            @id @default(cuid())
+  studentCode           String            @unique
+  fullName              String
+  email                 String            @unique
+  dateOfBirth           DateTime          @db.Date
+  programmeId           String
+  programme             Programme         @relation(fields: [programmeId], references: [id], onDelete: Restrict)
+  academicYear          String
+  status                EnrolmentStatus   @default(ENROLLED)
+  statusReason          String?
+  user                  User?             @relation("StudentUser")
+  feeAssignment         FeeAssignment?
+  submissions           Submission[]
+  results               Result[]
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+
+  @@index([programmeId, academicYear, status])
+  @@index([studentCode])
+}
+
+model StudentIdCounter {
+  academicYearStart     Int               @id
+  lastIssued            Int               @default(0)
+}
+
+model ProgrammeFeeRule {
+  id                    String            @id @default(cuid())
+  programmeId           String
+  programme             Programme         @relation(fields: [programmeId], references: [id], onDelete: Cascade)
+  academicYear          String
+  amountMinor           Int
+  dueDate               DateTime          @db.Date
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+
+  @@unique([programmeId, academicYear])
+}
+
+model FeeAssignment {
+  id                    String            @id @default(cuid())
+  studentId             String            @unique
+  student               Student           @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  amountMinor           Int
+  dueDate               DateTime          @db.Date
+  academicYear          String
+  payments              Payment[]
+  adjustments           FeeAdjustment[]
+  createdAt             DateTime          @default(now())
+}
+
+model Payment {
+  id                    String            @id @default(cuid())
+  feeAssignmentId       String
+  feeAssignment         FeeAssignment     @relation(fields: [feeAssignmentId], references: [id], onDelete: Restrict)
+  amountMinor           Int
+  receivedOn            DateTime          @db.Date
+  reference             String            @unique
+  status                PaymentStatus     @default(ACTIVE)
+  voidedAt              DateTime?
+  voidReason            String?
+  voidedById            String?
+  createdAt             DateTime          @default(now())
+
+  @@index([feeAssignmentId, status])
+}
+
+model FeeAdjustment {
+  id                    String            @id @default(cuid())
+  feeAssignmentId       String
+  feeAssignment         FeeAssignment     @relation(fields: [feeAssignmentId], references: [id], onDelete: Restrict)
+  amountMinor           Int
+  reason                String
+  createdById           String
+  createdBy             User              @relation("AdjustmentCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  createdAt             DateTime          @default(now())
+}
+
+model Assessment {
+  id                    String            @id @default(cuid())
+  title                 String
+  moduleId              String
+  module                Module            @relation(fields: [moduleId], references: [id], onDelete: Restrict)
+  academicYear          String
+  deadline              DateTime
+  closedAt              DateTime?
+  createdById           String
+  createdBy             User              @relation("AssessmentCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  submissions           Submission[]
+  results               Result[]
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+
+  @@index([moduleId, academicYear])
+}
+
+model Submission {
+  id                    String            @id @default(cuid())
+  studentId             String
+  student               Student           @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  assessmentId          String
+  assessment            Assessment        @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  currentRevisionId     String?           @unique
+  currentRevision       SubmissionRevision? @relation("CurrentRevision", fields: [currentRevisionId], references: [id], onDelete: SetNull)
+  revisions             SubmissionRevision[] @relation("SubmissionRevisions")
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+
+  @@unique([studentId, assessmentId])
+  @@index([assessmentId])
+}
+
+model SubmissionRevision {
+  id                    String            @id @default(cuid())
+  submissionId          String
+  submission            Submission        @relation("SubmissionRevisions", fields: [submissionId], references: [id], onDelete: Cascade)
+  currentFor            Submission?       @relation("CurrentRevision")
+  revisionNumber        Int
+  isLate                Boolean
+  fileName              String
+  mimeType              String
+  sizeBytes             Int
+  storageKey            String            @unique
+  createdAt             DateTime          @default(now())
+
+  @@unique([submissionId, revisionNumber])
+}
+
+model Result {
+  id                    String            @id @default(cuid())
+  studentId             String
+  student               Student           @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  assessmentId          String
+  assessment            Assessment        @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  grade                 Int
+  status                ResultStatus      @default(DRAFT)
+  withheldReason        String?
+  publishedAt           DateTime?
+  publishedById         String?
+  publishedBy           User?             @relation("ResultPublisher", fields: [publishedById], references: [id], onDelete: SetNull)
+  version               Int               @default(0)
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+
+  @@unique([studentId, assessmentId])
+  @@index([assessmentId, status])
+}
+
+model AuditEvent {
+  id                    String            @id @default(cuid())
+  actorId               String?
+  actor                 User?             @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+  action                String
+  entityType            String
+  entityId              String
+  metadata              Json?
+  createdAt             DateTime          @default(now())
+
+  @@index([entityType, entityId, createdAt])
+}

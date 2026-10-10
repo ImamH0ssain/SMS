@@ -1,0 +1,13 @@
+node_modules/
+.next/
+.env
+.env.local
+.uploads/
+.venv/
+coverage/
+src/generated/prisma/
+Docs/*.pdf
+*.tsbuildinfo
+.test-exit.txt
+.wsl-symlink-check
+*.log
