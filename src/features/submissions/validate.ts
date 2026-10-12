@@ -1,7 +1,7 @@
 import "server-only";
 import { env } from "@/lib/env";
 import { AppError } from "@/lib/http";
-import { MAX_DOCX_DECLARED_UNCOMPRESSED_BYTES, MAX_ZIP_ENTRIES, validateSafeZipEntries } from "@/features/submissions/rules";
+import { MAX_ZIP_ENTRIES, validateSafeZipEntries } from "@/features/submissions/rules";
 
 const PDF_MIME = "application/pdf";
 const DOCX_MIME = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";

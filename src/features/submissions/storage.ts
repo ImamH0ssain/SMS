@@ -13,12 +13,12 @@ export interface StorageAdapter {
 }
 
 function root() {
-  return resolve(process.cwd(), env.UPLOAD_DIR);
+  return resolve(/* turbopackIgnore: true */ process.cwd(), env.UPLOAD_DIR);
 }
 
 function safePath(key: string) {
   if (!/^[a-zA-Z0-9-]+$/.test(key)) throw new Error("Unsafe storage key");
-  return join(root(), key);
+  return join(/* turbopackIgnore: true */ root(), key);
 }
 
 export const localDiskStorage: StorageAdapter = {

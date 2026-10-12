@@ -259,10 +259,10 @@ If time slips, cut in this order: bulk publish, adjustments UI, Playwright smoke
 ## Continuity files and workspace policy
 
 - `AGENTS.md`: constraints, current milestone, mandatory commands, read order.
-- `docs/plan/IMPLEMENTATION_PLAN.md`: live delivery board.
+- `Docs/plan/IMPLEMENTATION_PLAN.md`: live delivery board.
 - This document: final architecture and full plan.
-- `docs/DECISIONS.md`: decision/rationale/rejected option/consequence.
-- `docs/AI_LOG.md`: factual milestone record; human reviewer corrects it before submission.
+- `Docs/DECISIONS.md`: decision/rationale/rejected option/consequence.
+- `Docs/AI_LOG.md`: factual milestone record; human reviewer corrects it before submission.
 - `README.md`: setup, env, scripts, demo personas, edge cases, API examples, tests, architecture, limitations, and AI usage.
 
 All development runs in WSL at `/mnt/d/Projects/SMS`; source and Git remain on `D:` for IDE visibility. `.venv` is for Python support tools. Docker PostgreSQL uses Docker-managed Linux volumes, never a repository directory.

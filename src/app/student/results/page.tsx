@@ -3,13 +3,13 @@ import { Award, GraduationCap } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { PageHeader } from "@/components/page-header";
 import { Badge } from "@/components/ui/badge";
+import { publishedResultsForStudent } from "@/features/results/projections";
 import { classifyGrade } from "@/features/results/rules";
-import { prisma } from "@/lib/prisma";
 import { requireStudent } from "@/lib/session";
 
 export default async function StudentResultsPage() {
   const session = await requireStudent();
-  const results = await prisma.result.findMany({ where: { studentId: session.studentId, status: "PUBLISHED" }, include: { assessment: { include: { module: true } } }, orderBy: { publishedAt: "desc" } });
+  const results = await publishedResultsForStudent(session.studentId);
 
   return <div className="space-y-6">
     <PageHeader eyebrow="My marksheet" title="Published results" description="Only results formally published by the Registry appear here. Draft and withheld results remain private." />

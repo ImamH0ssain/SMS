@@ -76,7 +76,7 @@ async function main() {
   const ella = await createStudent("SMS-2026-0005", "Ella Wright", "ella@example.test", computing.id, "2026/27", EnrolmentStatus.WITHDRAWN, true, "Transferred institution");
   const farah = await createStudent("SMS-2025-0001", "Farah Khan", "farah@example.test", computing.id, "2025/26", EnrolmentStatus.COMPLETED, true);
   const gita = await createStudent("SMS-2026-0006", "Gita Singh", "gita@example.test", computing.id, "2026/27", EnrolmentStatus.ENROLLED, true);
-  const hugo = await createStudent("SMS-2026-0007", "Hugo Patel", "hugo@example.test", computing.id, "2026/27", EnrolmentStatus.ENROLLED, true);
+  await createStudent("SMS-2026-0007", "Hugo Patel", "hugo@example.test", computing.id, "2026/27", EnrolmentStatus.ENROLLED, true);
   const isla = await createStudent("SMS-2026-0008", "Isla Moore", "isla@example.test", computing.id, "2026/27", EnrolmentStatus.ENROLLED, true);
   await prisma.payment.createMany({ data: [
     { feeAssignmentId: amina.fee.id, amountMinor: 900000, receivedOn: date(-10), reference: "SEED-AMINA-FULL" },

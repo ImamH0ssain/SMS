@@ -15,7 +15,7 @@
 }
 
 /* Legacy workflow classes remain while each route is moved to the shared Tailwind/shadcn primitives. */
-a { color: inherit; text-decoration: none; }
+a:not([class]) { color: inherit; text-decoration: none; }
 button, input, select, textarea { font: inherit; }
 button { cursor: pointer; }
 .shell { min-height: 100vh; }
@@ -28,7 +28,7 @@ button { cursor: pointer; }
 .nav-item:hover { background: #eef3ff; color: var(--blue); }
 .content { max-width: 1280px; width: 100%; padding: 34px; margin: 0 auto; }
 .eyebrow { color: var(--blue); font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
-h1 { font-size: 28px; margin: 4px 0 8px; } h2 { font-size: 18px; margin: 0; } p { color: var(--muted); line-height: 1.5; }
+h1 { font-size: 28px; margin: 4px 0 8px; } h2 { font-size: 18px; margin: 0; } p { line-height: 1.5; } p:not([class]) { color: var(--muted); }
 .grid { display: grid; gap: 18px; }.grid-4 { grid-template-columns: repeat(4, minmax(0,1fr)); }.grid-2 { grid-template-columns: repeat(2, minmax(0,1fr)); }
 .card { background: white; border: 1px solid var(--line); border-radius: 12px; padding: 20px; box-shadow: 0 1px 2px rgba(20,40,80,.03); }
 .metric { font-size: 30px; font-weight: 800; margin-top: 8px; }.metric-label { color: var(--muted); font-size: 13px; font-weight: 600; }

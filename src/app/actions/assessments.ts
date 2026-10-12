@@ -5,15 +5,22 @@ import { revalidatePath } from "next/cache";
 import { auditData } from "@/lib/audit";
 import { prisma } from "@/lib/prisma";
 import { requireStaff } from "@/lib/session";
+import { actionFailure, type ActionState } from "@/lib/action-state";
 
-export async function createAssessmentAction(formData: FormData) {
-  const staff = await requireStaff();
-  const assessment = await prisma.assessment.create({ data: { title: String(formData.get("title")).trim(), moduleId: String(formData.get("moduleId")), academicYear: String(formData.get("academicYear")), deadline: new Date(String(formData.get("deadline"))), createdById: staff.userId } });
-  await prisma.auditEvent.create({ data: auditData(staff.userId, "ASSESSMENT_CREATED", "Assessment", assessment.id) });
-  redirect(`/staff/assessments/${assessment.id}`);
+export async function createAssessmentAction(_previous: ActionState, formData: FormData): Promise<ActionState> {
+  try {
+    const staff = await requireStaff();
+    const assessment = await prisma.$transaction(async (tx) => {
+      const created = await tx.assessment.create({ data: { title: String(formData.get("title")).trim(), moduleId: String(formData.get("moduleId")), academicYear: String(formData.get("academicYear")), deadline: new Date(String(formData.get("deadline"))), createdById: staff.userId } });
+      await tx.auditEvent.create({ data: auditData(staff.userId, "ASSESSMENT_CREATED", "Assessment", created.id) });
+      return created;
+    });
+    redirect(`/staff/assessments/${assessment.id}`);
+  } catch (error) { return actionFailure(error); }
 }
 
-export async function updateAssessmentAction(formData: FormData) {
+export async function updateAssessmentAction(_previous: ActionState, formData: FormData): Promise<ActionState> {
+ try {
   const staff = await requireStaff();
   const assessmentId = String(formData.get("assessmentId") ?? "");
   const operation = String(formData.get("operation") ?? "");
@@ -38,4 +45,6 @@ export async function updateAssessmentAction(formData: FormData) {
   revalidatePath(`/staff/assessments/${assessmentId}`);
   revalidatePath("/staff/assessments");
   revalidatePath("/student/assessments");
+  return { ok: true, message: "Assessment updated." };
+ } catch (error) { return actionFailure(error); }
 }

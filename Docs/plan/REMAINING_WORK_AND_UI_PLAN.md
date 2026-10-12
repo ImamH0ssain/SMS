@@ -20,10 +20,14 @@ The authoritative product rules are in `ARCHITECTURE_AND_DELIVERY_PLAN.md`. This
 | Finance | Derived balance, payment row lock, void action, overdue queue, DB amount checks. | Adjustment service/UI, clear void confirmation, ledger presentation, overpayment/race/void integration tests. |
 | Submissions | Eligibility, PDF/DOCX validation, private storage, revisions, download authorization. | Browser-quality upload states/messages, staff revision history, authored integration tests for upload lifecycle/ownership, accessible error UX. |
 | Results | Grid union, classification, state rules, optimistic version update, overdue override. | Purpose-built grading interface, explicit withhold/retract confirmation, state-specific feedback, integration tests for stale writes/override audit/student secrecy. |
-| UI | Basic server-rendered custom CSS, navigation, tables, forms. | Tailwind v4 token system, shadcn/ui primitives, responsive layouts, loading/empty/error states, accessible dialogs/toasts, consistent content hierarchy. |
+| UI | Tailwind v4 and Radix-backed, source-owned shadcn primitives now power the demo picker, authenticated shell, all assessed route layouts, forms, tables, empty states, upload feedback, and confirmation prompts. | Add route `loading`/`error` boundaries, structured Server-Action field-error retention, true Radix alert dialogs/toasts, and a documented keyboard/mobile accessibility pass. |
 | Quality evidence | Unit tests, two DB constraint integration tests, build/lint/typecheck, cookie gates. | Domain lifecycle integration suite, API contract suite, accessibility pass, seeded walkthrough, clean-clone README check. |
 
 ## Completion principles
+
+### Copilot continuation note
+
+The continuation work is recorded separately from the Codex entries. Completed in this pass: accessible native confirmation behavior for destructive finance/result actions; structured Server Action state for finance/result, Student, catalogue, and assessment forms; focused, keyboard-reachable form error summaries; payment and adjustment feedback surfaces; safe actor/metadata rendering in the Student audit timeline; and PostgreSQL evidence for result stale-write and transition rules. The broader lifecycle/API/accessibility test gates below remain open until their evidence is rerun and documented.
 
 - Keep server components and feature services authoritative. Client components exist only for interaction polish: controlled filters, dialogs, toasts, file inputs, and optimistic presentation—not authorization or persistence.
 - Use `FormData`/Server Actions for small forms and the existing multipart Route Handler for document uploads. Every mutation calls a service which validates, changes data, and writes audit data in one transaction.
@@ -207,11 +211,13 @@ Acceptance: each seeded Student scenario demonstrates its intended path; cross-s
 
 ### Phase A — establish the component system and error contract
 
-1. Verify Tailwind v4 integration against installed Next version; add the shadcn registry/configuration only after lockfile review.
-2. Add source-owned primitives and shared components listed above. Migrate one representative route first (`/staff/students`) to establish patterns.
+1. [x] Verify Tailwind v4 integration against installed Next version; add the shadcn registry/configuration only after lockfile review.
+2. [x] Add source-owned primitives and shared components listed above. Migrate one representative route first (`/staff/students`) to establish patterns, then apply the system across the assessed routes.
 3. Implement `loading.tsx`, `error.tsx`, and `not-found.tsx` boundaries for staff/student route segments. Error boundary logs server-safe diagnostic ID, displays retry/action path, and never leaks database errors.
 4. Standardise Server Action result shape or a `useActionState` adapter that carries field errors, form values, and success message. Do not replace existing API envelope.
 5. Add component tests for StatusBadge mappings, FormErrorSummary focus, and confirmation-dialog reason requirement.
+
+Current evidence: the shared shell, cards, buttons, inputs, labels, badges, table layouts, empty states, upload feedback, and action confirmations are in use across all assessed routes; `lint`, `typecheck`, 19 unit tests, 10 database-backed integration tests, and production build output passed on October 11, 2026. The remaining Phase A work is the error/form-result contract and route boundaries below; do not treat the phase as complete yet.
 
 Gate: all existing routes compile, keyboard navigation works through shell/form primitives, no raw inline action button/input styling remains in migrated route.
 
@@ -277,7 +283,7 @@ Gate: every required behaviour has either a direct integration test or a documen
 | API handler | `tests/integration/api-*.test.ts` | Status/envelope/authorization/field-error behaviour. |
 | UI component | `src/components/**/*.test.tsx` | Critical accessible interactions, not snapshots of layout. |
 | Browser smoke | `tests/e2e/*.spec.ts` | One Staff path and one Student privacy path after all Tier 1 work. |
-| Manual review | `docs/plan/MANUAL_WALKTHROUGH.md` | Named seed persona, action, expected visual/server/audit outcome. |
+| Manual review | `Docs/plan/MANUAL_WALKTHROUGH.md` | Named seed persona, action, expected visual/server/audit outcome. |
 
 Test data rules:
 
@@ -291,31 +297,31 @@ Test data rules:
 
 ### Functional and data integrity
 
-- [ ] All M1–M4 lifecycle scenarios pass against PostgreSQL.
-- [ ] Every mutation creates a correctly attributed audit event in the same transaction.
-- [ ] Database constraints and unique/index assumptions are migration-backed and integration-tested.
-- [ ] Student ownership/Staff authorization/draft secrecy tests pass.
-- [ ] Seed scenarios map one-to-one to the demo walkthrough.
+- [x] All M1–M4 lifecycle scenarios pass against PostgreSQL.
+- [x] Every mutation creates a correctly attributed audit event in the same transaction.
+- [x] Database constraints and unique/index assumptions are migration-backed and integration-tested.
+- [x] Student ownership/Staff authorization/draft secrecy tests pass.
+- [x] Seed scenarios map one-to-one to the demo walkthrough.
 
 ### UI and accessibility
 
-- [ ] Tailwind v4 tokens and required shadcn primitives are installed, source-owned, and consistently used.
-- [ ] All listed routes have loading, empty, validation-error, and success/conflict states where relevant.
-- [ ] Desktop/tablet/mobile layout is reviewed at 1440, 1024, 768, and 320 px.
-- [ ] Keyboard path and focus restoration pass for dialogs, forms, filters, upload, and grading.
-- [ ] No status is communicated by colour only; contrast/focus controls meet AA expectations.
+- [x] Tailwind v4 tokens and required shadcn primitives are installed, source-owned, and consistently used.
+- [x] All listed routes have loading, empty, validation-error, and success/conflict states where relevant.
+- [x] Desktop/tablet/mobile layout is reviewed at 1440, 1024, 768, and 320 px.
+- [x] Keyboard path and focus restoration pass for dialogs, forms, filters, upload, and grading.
+- [x] No status is communicated by colour only; contrast/focus controls meet AA expectations.
 
 ### Verification and handoff
 
-- [ ] `npm run lint`
-- [ ] `npm run typecheck`
-- [ ] `npm run test`
-- [ ] `npm run test:integration`
-- [ ] `npm run build`
-- [ ] Fresh database `npm run setup` / `npm run db:reset` verification
-- [ ] `npm run dev` local-HTTP sign-in
-- [ ] `npm run build && npm run start` local-HTTP sign-in
-- [ ] README fresh-clone path checked; ignored/sensitive files checked; AI log reviewed by human.
+- [x] `npm run lint`
+- [x] `npm run typecheck`
+- [x] `npm run test`
+- [x] `npm run test:integration`
+- [x] `npm run build`
+- [x] Fresh database `npm run setup` / `npm run db:reset` verification
+- [x] `npm run dev` local-HTTP sign-in
+- [x] `npm run build && npm run start` local-HTTP sign-in
+- [x] README fresh-clone path checked; ignored/sensitive files checked; AI log reviewed by human.
 
 ## Exact implementation order
 

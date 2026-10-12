@@ -1,11 +1,10 @@
 import { apiError, ok } from "@/lib/http";
-import { prisma } from "@/lib/prisma";
+import { publishedResultsForStudent } from "@/features/results/projections";
 import { requireStudent } from "@/lib/session";
 
 export async function GET() {
   try {
     const session = await requireStudent();
-    const results = await prisma.result.findMany({ where: { studentId: session.studentId, status: "PUBLISHED" }, include: { assessment: { include: { module: true } } } });
-    return ok(results);
+    return ok(await publishedResultsForStudent(session.studentId));
   } catch (error) { return apiError(error); }
 }

@@ -47,3 +47,24 @@ export async function voidPayment(paymentId: string, reason: string, actorId: st
     return voided;
   });
 }
+
+export async function createAdjustment(input: { studentId: string; amountMinor: number; reason: string }, actorId: string) {
+  const reason = input.reason.trim();
+  if (!Number.isInteger(input.amountMinor) || input.amountMinor === 0) {
+    throw new AppError("VALIDATION_ERROR", 422, "An adjustment must be a non-zero whole penny amount.");
+  }
+  if (!reason || reason.length > 500) {
+    throw new AppError("VALIDATION_ERROR", 422, "An adjustment reason is required and must be 500 characters or fewer.");
+  }
+  return prisma.$transaction(async (tx) => {
+    const assignment = await tx.feeAssignment.findUnique({ where: { studentId: input.studentId } });
+    if (!assignment) throw new AppError("NOT_FOUND", 404, "Student finance record not found.");
+    const { balanceMinor } = await lockedBalance(tx, assignment.id);
+    if (balanceMinor + input.amountMinor < 0) {
+      throw new AppError("CONFLICT", 409, "This adjustment would make the outstanding balance negative.");
+    }
+    const adjustment = await tx.feeAdjustment.create({ data: { feeAssignmentId: assignment.id, amountMinor: input.amountMinor, reason, createdById: actorId } });
+    await tx.auditEvent.create({ data: auditData(actorId, "FEE_ADJUSTMENT_CREATED", "FeeAdjustment", adjustment.id, { amountMinor: input.amountMinor, reason }) });
+    return adjustment;
+  });
+}

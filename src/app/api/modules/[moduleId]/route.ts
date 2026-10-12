@@ -11,7 +11,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   try {
     const staff = await requireStaff(); const { moduleId } = await params; const input = schema.parse(await request.json());
     const exists = await prisma.module.findUnique({ where: { id: moduleId } }); if (!exists) throw new AppError("NOT_FOUND", 404, "Resource not found.");
-    const module = await prisma.$transaction(async (tx) => { const updated = await tx.module.update({ where: { id: moduleId }, data: { ...input, ...(input.code ? { code: input.code.toUpperCase() } : {}) } }); await tx.auditEvent.create({ data: auditData(staff.userId, "MODULE_UPDATED", "Module", moduleId, { changed: input }) }); return updated; });
-    return ok(module);
+    const moduleRecord = await prisma.$transaction(async (tx) => { const updated = await tx.module.update({ where: { id: moduleId }, data: { ...input, ...(input.code ? { code: input.code.toUpperCase() } : {}) } }); await tx.auditEvent.create({ data: auditData(staff.userId, "MODULE_UPDATED", "Module", moduleId, { changed: input }) }); return updated; });
+    return ok(moduleRecord);
   } catch (error) { return apiError(error); }
 }

@@ -24,8 +24,8 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
 
         <div className="flex min-w-0 items-center gap-2 sm:gap-3">
           <div className="hidden min-w-0 text-right lg:block">
-            <p className="truncate text-xs font-medium text-slate-200">Demo mode · {session?.name ?? "Guest"}</p>
-            <p className="text-[11px] text-slate-400">Viewing as {role}</p>
+            <p className="truncate text-xs font-medium text-slate-100">Demo mode · {session?.name ?? "Guest"}</p>
+            <p className="text-[11px] text-slate-300">Viewing as {role}</p>
           </div>
           <Badge variant="default" className="hidden border-blue-400/40 bg-blue-500/15 text-blue-100 sm:inline-flex">Demo</Badge>
           <Button asChild size="sm" variant="outline" className="border-slate-600 bg-slate-900 text-slate-100 hover:bg-slate-800 hover:text-white">

@@ -1,6 +1,6 @@
 # SMS Registry
 
-A focused Student Management System Registry module for enrolment, fee tracking, submission handling, and controlled result publication. It is deliberately a real PostgreSQL application rather than a browser-only prototype. The complete approved architecture, workflow rules, API contract, seed matrix, and test plan are in [docs/plan/ARCHITECTURE_AND_DELIVERY_PLAN.md](docs/plan/ARCHITECTURE_AND_DELIVERY_PLAN.md).
+A focused Student Management System Registry module for enrolment, fee tracking, submission handling, and controlled result publication. It is deliberately a real PostgreSQL application rather than a browser-only prototype. The complete approved architecture, workflow rules, API contract, seed matrix, and test plan are in [Docs/plan/ARCHITECTURE_AND_DELIVERY_PLAN.md](Docs/plan/ARCHITECTURE_AND_DELIVERY_PLAN.md).
 
 ## Architecture
 
@@ -54,7 +54,12 @@ The supplied development secret and demo mode are intentionally usable locally. 
 
 `dev`, `build`, `start`, `lint`, `typecheck`, `test`, `test:integration`, `db:migrate`, `db:seed`, `db:reset`, and `setup` are defined in `package.json`.
 
-`db:reset` refuses non-local database hosts. Integration tests must use `TEST_DATABASE_URL`, never the development database.
+`db:reset` refuses non-local database hosts. Integration tests must use `TEST_DATABASE_URL`, never the development database. If Docker's ephemeral test container was recreated, apply its schema before running integration tests:
+
+```bash
+bash scripts/migrate-test-db.sh
+npm run test:integration
+```
 
 ## Demo data
 
@@ -87,7 +92,7 @@ curl -b 'sms_demo_session=<token>' \
   'http://localhost:3000/api/students?q=Amina'
 ```
 
-Primary endpoints cover students, payments and voiding, programmes/modules/fee rules, assessments and uploads, protected revision downloads, results, the overdue queue, and Student-specific assessment/result projections. See `docs/plan/IMPLEMENTATION_PLAN.md` for the complete route list.
+Primary endpoints cover students, payments and voiding, programmes/modules/fee rules, assessments and uploads, protected revision downloads, results, the overdue queue, and Student-specific assessment/result projections. See `Docs/plan/IMPLEMENTATION_PLAN.md` for the complete route list.
 
 ## Testing and verification
 
@@ -110,4 +115,4 @@ Unit coverage includes classification and result-publication rules, student ID w
 
 ## Decisions and AI use
 
-The decision record, delivery board, and factual AI-assistance log are maintained in [`docs/DECISIONS.md`](docs/DECISIONS.md), [`docs/plan/IMPLEMENTATION_PLAN.md`](docs/plan/IMPLEMENTATION_PLAN.md), and [`docs/AI_LOG.md`](docs/AI_LOG.md). The human reviewer must check and correct the AI log before submission.
+The decision record, delivery board, and factual AI-assistance log are maintained in [`Docs/DECISIONS.md`](Docs/DECISIONS.md), [`Docs/plan/IMPLEMENTATION_PLAN.md`](Docs/plan/IMPLEMENTATION_PLAN.md), and [`Docs/AI_LOG.md`](Docs/AI_LOG.md). The human reviewer must check and correct the AI log before submission.
