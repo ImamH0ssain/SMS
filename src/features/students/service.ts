@@ -60,6 +60,8 @@ export async function updateStudent(input: UpdateStudentInput, actorId: string) 
   const reason = input.statusReason?.trim() || undefined;
   if (!fullName || !email) throw new AppError("VALIDATION_ERROR", 422, "A name and email are required.");
   if (!/^\d{4}\/\d{2}$/.test(input.academicYear)) throw new AppError("VALIDATION_ERROR", 422, "Academic year must use YYYY/YY format.");
+  const existingEmail = await prisma.student.findFirst({ where: { email, id: { not: student.id } } });
+  if (existingEmail) throw new AppError("CONFLICT", 409, "A student already uses this email address.");
   if (input.status !== student.status) assertStatusTransition(student.status, input.status, reason);
   if ((input.status === EnrolmentStatus.DEFERRED || input.status === EnrolmentStatus.WITHDRAWN) && !reason) throw new AppError("VALIDATION_ERROR", 422, "A reason is required for deferred and withdrawn students.");
   if (reason && reason.length > 500) throw new AppError("VALIDATION_ERROR", 422, "Status reason must be 500 characters or fewer.");

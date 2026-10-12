@@ -1,4 +1,4 @@
-import { AppError } from "@/lib/http";
+import { AppError, mapPrismaError } from "@/lib/http";
 
 export type ActionState = {
   ok: boolean;
@@ -9,6 +9,7 @@ export type ActionState = {
 export const initialActionState: ActionState = { ok: false };
 
 export function actionFailure(error: unknown): ActionState {
+  error = mapPrismaError(error);
   if (error instanceof AppError) {
     return { ok: false, message: error.message, fieldErrors: error.fieldErrors };
   }

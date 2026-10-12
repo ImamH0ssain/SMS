@@ -13,8 +13,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { prisma } from "@/lib/prisma";
+import { requireStaff } from "@/lib/session";
 
 export default async function AssessmentDetailPage({ params }: { params: Promise<{ assessmentId: string }> }) {
+  await requireStaff();
   const { assessmentId } = await params;
   const assessment = await prisma.assessment.findUnique({ where: { id: assessmentId }, include: { module: true, submissions: { include: { student: true, currentRevision: true, revisions: true }, orderBy: { updatedAt: "desc" } } } });
   if (!assessment) notFound();

@@ -3,9 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": ">=24.20.0 <25"
+    "node": ">=20.19.0 <25"
   },
   "scripts": {
+    "postinstall": "prisma generate",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
@@ -25,9 +26,7 @@
   "dependencies": {
     "@prisma/adapter-pg": "7.10.0",
     "@prisma/client": "7.10.0",
-    "@radix-ui/react-dialog": "1.2.0",
     "@radix-ui/react-label": "2.1.16",
-    "@radix-ui/react-select": "2.3.8",
     "@radix-ui/react-slot": "1.4.0",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",

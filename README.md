@@ -13,26 +13,32 @@ Browser → Next.js App Router → server guards/actions/route handlers
 
 The home page exposes only designated seed personas. A signed, `httpOnly` JWT cookie contains the subject only; each request resolves the current role and linked student record from PostgreSQL. Staff and student ownership checks are performed on the server, not by the UI.
 
-## Run locally in WSL
+## Quick start
 
-All commands run inside WSL from `/mnt/d/Projects/SMS`. Source files remain in this Windows-visible folder. Activate `.venv` for Python support tools. The project intentionally does not rely on cross-filesystem symlinks or bind mounts because they are unreliable in this WSL setup. PostgreSQL data lives in a Docker/Linux volume, not in the repository.
+Prerequisites: Node.js 20.19+ (or a supported newer LTS), npm, and PostgreSQL 14+ (Docker Compose is convenient but not required).
 
 ```bash
-cd /mnt/d/Projects/SMS
-python3 -m venv .venv
-source .venv/bin/activate
-# Node 24 LTS is required. See AGENTS.md for the project workflow.
 cp .env.example .env
 npm ci
 npm run setup
 npm run dev
 ```
 
-Start the database containers before `npm run setup`. On a normal WSL Docker installation, run `docker compose up -d`. On this machine Docker Desktop is installed but its CLI is not in `PATH`, so run this once from PowerShell in the repository:
+`npm run setup` applies the Prisma migrations and deterministic demo seed. If using the included Compose database, start it first:
 
-```powershell
-& 'C:\Program Files\Docker\Docker\resources\bin\docker.exe' compose up -d
+```bash
+docker compose up -d
+npm run setup
+npm run dev
 ```
+
+Alternatively, point `DATABASE_URL` in `.env` at any reachable PostgreSQL database and run the same setup commands.
+
+### WSL and Docker notes
+
+WSL is optional. When using WSL, run commands from the Linux checkout path and use the Node/npm installation available in that environment. Docker Desktop users may need to enable WSL integration or invoke Docker from the host operating system; these are environment-specific details and are not required by the application.
+
+When the server runs in WSL and the browser runs on Windows, use `http://127.0.0.1:3000/` in Windows Chrome if `http://localhost:3000/` resolves to IPv6 (`::1`) and times out. WSL localhost forwarding is environment-dependent; this does not require HTTPS or a virtual environment.
 
 The supplied development secret and demo mode are intentionally usable locally. Replace `SESSION_SECRET` and set `ENABLE_DEMO_SESSION=false` before any public deployment. The application itself has no default deployment target.
 

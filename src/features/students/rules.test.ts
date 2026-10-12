@@ -11,4 +11,26 @@ describe("student record rules", () => {
     expect(() => assertStatusTransition(EnrolmentStatus.ENROLLED, EnrolmentStatus.WITHDRAWN)).toThrow("reason");
     expect(() => assertStatusTransition(EnrolmentStatus.ENROLLED, EnrolmentStatus.WITHDRAWN, "Transferred")).not.toThrow();
   });
+  it("requires a reason for deferral and limits reasons to 500 characters", () => {
+    expect(() => assertStatusTransition(EnrolmentStatus.ENROLLED, EnrolmentStatus.DEFERRED)).toThrow("reason");
+    expect(() => assertStatusTransition(EnrolmentStatus.ENROLLED, EnrolmentStatus.DEFERRED, "Medical leave")).not.toThrow();
+    expect(() => assertStatusTransition(EnrolmentStatus.ENROLLED, EnrolmentStatus.DEFERRED, "x".repeat(501))).toThrow("500");
+  });
+  it("enforces the complete student status transition matrix", () => {
+    const allowed: Array<[EnrolmentStatus, EnrolmentStatus]> = [
+      [EnrolmentStatus.ENROLLED, EnrolmentStatus.DEFERRED],
+      [EnrolmentStatus.ENROLLED, EnrolmentStatus.WITHDRAWN],
+      [EnrolmentStatus.ENROLLED, EnrolmentStatus.COMPLETED],
+      [EnrolmentStatus.DEFERRED, EnrolmentStatus.ENROLLED],
+      [EnrolmentStatus.DEFERRED, EnrolmentStatus.WITHDRAWN],
+    ];
+    for (const [from, to] of allowed) expect(() => assertStatusTransition(from, to, "Valid reason")).not.toThrow();
+    for (const from of Object.values(EnrolmentStatus)) {
+      for (const to of Object.values(EnrolmentStatus)) {
+        if (from !== to && !allowed.some(([allowedFrom, allowedTo]) => allowedFrom === from && allowedTo === to)) {
+          expect(() => assertStatusTransition(from, to, "Valid reason")).toThrow();
+        }
+      }
+    }
+  });
 });

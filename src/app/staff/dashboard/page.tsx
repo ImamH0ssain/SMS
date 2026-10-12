@@ -9,7 +9,10 @@ import { overdueAccounts } from "@/features/finance/service";
 import { prisma } from "@/lib/prisma";
 import { formatMoney } from "@/lib/money";
 
+import { requireStaff } from "@/lib/session";
+
 export default async function StaffDashboard() {
+  await requireStaff();
   const [overdue, openAssessments, drafts, withheld] = await Promise.all([
     overdueAccounts(),
     prisma.assessment.count({ where: { closedAt: null } }),

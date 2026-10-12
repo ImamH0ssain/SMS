@@ -23,11 +23,11 @@ Deferred until all required work passes: deployment, real credentials, CSV expor
 
 ## End gates
 
-- [x] `npm run dev` permits a demo persona to sign in at `http://localhost`.
+- [x] `npm run dev` permits a demo persona to sign in at local HTTP (`http://localhost` or `http://127.0.0.1` when Windows Chrome reaches a WSL server).
 - [x] `npm run build && npm run start` permits the same local HTTP sign-in.
 - [x] No confidential brief, `.env`, `.uploads`, `.venv`, or secrets appear in Git.
 - [x] README-only setup works from a fresh clone and empty local database.
 
 ## Verification status (current)
 
-Docker Desktop PostgreSQL containers are running on local ports 5432 (development) and 5433 (test). The migration applied, deterministic seed completed, and the test schema can be restored after an ephemeral-container restart with `bash scripts/migrate-test-db.sh`. The current UI/component pass has passed `npm run lint`, `npm run typecheck`, `npm run test` (30 tests), `npm run test:integration` (26 PostgreSQL-backed workflow, lifecycle, API contract, and submission-lifecycle tests), and production build output generation. WSL Chromium installation is blocked by the current Ubuntu 26.04 Playwright platform support; the installed Windows Chrome fallback ran all four Playwright/axe tests successfully against a WSL-backed production server. `npm run db:reset` was also re-run successfully on October 12, 2026. Both local-HTTP sign-in gates were previously exercised with a seeded Staff user. In both modes, `POST /api/session` returned `200`, issued an `HttpOnly; SameSite=Lax` cookie without `Secure`, and that cookie loaded `/staff/dashboard` with `200`.
+Docker Desktop PostgreSQL containers are running on local ports 5432 (development) and 5433 (test). The migration applied, deterministic seed completed, and the test schema can be restored after an ephemeral-container restart with `bash scripts/migrate-test-db.sh`. The current UI/component pass has passed `npm run lint`, `npm run typecheck`, `npm run test` (35 tests), `npm run test:integration` (26 PostgreSQL-backed workflow, lifecycle, API contract, and submission-lifecycle tests), and production build output generation. WSL Chromium installation is blocked by the current Ubuntu 26.04 Playwright platform support; the installed Windows Chrome fallback ran all four Playwright/axe tests successfully against a WSL-backed production server. `npm run db:reset` was also re-run successfully on October 12, 2026. Both local-HTTP sign-in gates were previously exercised with a seeded Staff user. In both modes, `POST /api/session` returned `200`, issued an `HttpOnly; SameSite=Lax` cookie without `Secure`, and that cookie loaded `/staff/dashboard` with `200`.

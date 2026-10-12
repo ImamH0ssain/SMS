@@ -11,7 +11,7 @@ This walkthrough records the seeded browser checks completed during the Copilot 
 
 ## Staff path
 
-1. Open `http://localhost:3000/`.
+1. Open `http://localhost:3000/` (or `http://127.0.0.1:3000/` when the browser is Windows Chrome and the server is running in WSL).
 2. Choose **Amelia Reid — Registry Staff**.
 3. Confirm `/staff/dashboard` loads with the Staff navigation and database-backed worklist.
 4. Visit Students, New student, Assessments, New assessment, Results, and Programme & fees. Each route returned HTTP 200 in the production server smoke pass.

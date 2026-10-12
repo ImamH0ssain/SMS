@@ -6,8 +6,10 @@ import { PageHeader } from "@/components/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { prisma } from "@/lib/prisma";
+import { requireStaff } from "@/lib/session";
 
 export default async function AssessmentsPage() {
+  await requireStaff();
   const assessments = await prisma.assessment.findMany({ include: { module: { include: { programme: true } }, _count: { select: { submissions: true, results: true } } }, orderBy: { deadline: "asc" } });
   return <div className="space-y-6">
     <PageHeader eyebrow="Assessment submission" title="Assessments" description="Create and manage assessment windows, then move directly into the submission worklist or grading grid." actions={<Button asChild><Link href="/staff/assessments/new"><Plus aria-hidden="true" className="size-4" />Create assessment</Link></Button>} />

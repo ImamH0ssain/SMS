@@ -41,11 +41,11 @@ export async function validateSubmissionFile(file: File) {
   if (file.size <= 0 || file.size > maxBytes) throw new AppError("VALIDATION_ERROR", 422, `File must be between 1 byte and ${env.MAX_UPLOAD_MB} MB.`);
   const data = Buffer.from(await file.arrayBuffer());
   if (lower.endsWith(".pdf")) {
-    if (file.type !== PDF_MIME || !data.subarray(0, 5).equals(Buffer.from("%PDF-"))) throw new AppError("VALIDATION_ERROR", 422, "Upload a valid PDF file.");
+    if (!["", "application/octet-stream", PDF_MIME].includes(file.type) || !data.subarray(0, 5).equals(Buffer.from("%PDF-"))) throw new AppError("VALIDATION_ERROR", 422, "Upload a valid PDF file.");
     return { name, mimeType: PDF_MIME };
   }
   if (lower.endsWith(".docx")) {
-    if (file.type !== DOCX_MIME || !data.subarray(0, 4).equals(Buffer.from("PK\x03\x04"))) throw new AppError("VALIDATION_ERROR", 422, "Upload a valid DOCX file.");
+    if (!["", "application/octet-stream", DOCX_MIME].includes(file.type) || !data.subarray(0, 4).equals(Buffer.from("PK\x03\x04"))) throw new AppError("VALIDATION_ERROR", 422, "Upload a valid DOCX file.");
     zipEntries(data);
     return { name, mimeType: DOCX_MIME };
   }

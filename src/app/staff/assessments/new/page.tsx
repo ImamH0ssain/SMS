@@ -9,8 +9,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { prisma } from "@/lib/prisma";
+import { requireStaff } from "@/lib/session";
 
 export default async function NewAssessmentPage() {
+  await requireStaff();
   const modules = await prisma.module.findMany({ include: { programme: true }, orderBy: { code: "asc" } });
   return <div className="mx-auto max-w-3xl space-y-6">
     <Link href="/staff/assessments" className="inline-flex items-center gap-1 text-sm font-semibold text-blue-700 hover:underline"><ArrowLeft aria-hidden="true" className="size-4" />Back to assessments</Link>

@@ -13,8 +13,10 @@ import { isOverdue, outstandingBalance } from "@/features/finance/rules";
 import { classifyGrade } from "@/features/results/rules";
 import { organisationDate } from "@/lib/clock";
 import { prisma } from "@/lib/prisma";
+import { requireStaff } from "@/lib/session";
 
 export default async function ResultsPage({ searchParams }: { searchParams: Promise<{ assessmentId?: string }> }) {
+  await requireStaff();
   const { assessmentId } = await searchParams;
   const assessments = await prisma.assessment.findMany({ include: { module: true }, orderBy: { deadline: "desc" } });
   const selected = assessmentId ?? assessments[0]?.id;

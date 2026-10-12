@@ -14,8 +14,10 @@ import { balanceForAssignment } from "@/features/finance/service";
 import { formatMoney } from "@/lib/money";
 import { formatAuditMetadata } from "@/lib/audit-display";
 import { prisma } from "@/lib/prisma";
+import { requireStaff } from "@/lib/session";
 
 export default async function StudentDetailPage({ params }: { params: Promise<{ studentCode: string }> }) {
+  await requireStaff();
   const { studentCode } = await params;
   const student = await prisma.student.findUnique({ where: { studentCode }, include: { programme: true, feeAssignment: { include: { payments: { orderBy: { createdAt: "desc" } }, adjustments: { include: { createdBy: { select: { name: true } } }, orderBy: { createdAt: "desc" } } } }, submissions: { include: { assessment: true } }, results: { include: { assessment: true } } } });
   if (!student || !student.feeAssignment) notFound();
