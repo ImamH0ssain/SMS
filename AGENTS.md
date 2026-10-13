@@ -25,7 +25,7 @@ Milestone 0 is complete and its local database/session gates have passed. M1–M
 ## Required verification
 
 - `npm run lint`, `npm run typecheck`, `npm run test`, `npm run test:integration`, and `npm run build` before completion where the local dependencies exist.
-- Day 1 and Day 7 gates: a clean clone must sign in at HTTP localhost using both `npm run dev` and `npm run build && npm run start`.
+- End gate: a clean clone must sign in at HTTP localhost using both `npm run dev` and `npm run build && npm run start`.
 
 ## Current verification facts
 
