@@ -7,7 +7,7 @@ node_modules/
 coverage/
 src/generated/prisma/
 Docs/*.pdf
-Docs/plan
+Docs/plan/
 *.tsbuildinfo
 .test-exit.txt
 .wsl-symlink-check
