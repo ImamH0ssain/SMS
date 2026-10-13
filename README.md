@@ -56,7 +56,7 @@ Every page, server action and API route checks who is signed in and what they ar
 
 ```bash
 git clone https://github.com/ImamH0ssain/SMS.git
-cd <repository-folder>
+cd SMS
 cp .env.example .env        # Windows PowerShell: Copy-Item .env.example .env
 docker compose up -d        # starts PostgreSQL; skip if you have your own database
 npm ci
