@@ -3,15 +3,13 @@
 ## Read order
 
 1. This file
-2. `Docs/plan/ARCHITECTURE_AND_DELIVERY_PLAN.md`
-3. `Docs/plan/REMAINING_WORK_AND_UI_PLAN.md`
-4. `Docs/plan/IMPLEMENTATION_PLAN.md`
-5. `Docs/DECISIONS.md`
-6. `Docs/AI_LOG.md`
+2. `Docs/ARCHITECTURE.md`
+3. `Docs/DECISIONS.md`
+4. `Docs/AI_LOG.md`
 
 ## Current state
 
-Milestone 0 is complete and its local database/session gates have passed. M1–M5 implementation and evidence gates are now complete: the documented lifecycle, API, database, browser/accessibility, seed walkthrough, and audit-matrix checks pass. The only environment limitation is that WSL Ubuntu 26.04 cannot download the Playwright Chromium binary; the installed Windows Chrome fallback passed the browser suite against the WSL-backed application.
+Write and update the current state here.
 
 ## Non-negotiable rules
 
