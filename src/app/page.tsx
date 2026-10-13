@@ -101,10 +101,11 @@ function PersonaGroup({
 
 const studentPersonaHints: Record<string, string> = {
   "SMS-2026-0002": "Withheld result — academic integrity review",
-  "SMS-2026-0003": "Late submission — withdrawn student",
-  "SMS-2026-0005": "Resubmission history and published result",
-  "SMS-2026-0006": "Published result before assessment deadline",
+  "SMS-2026-0003": "Closed assessment result",
+  "SMS-2026-0005": "Late submission — withdrawn student",
+  "SMS-2026-0006": "Resubmission history (PDF, then DOCX)",
   "SMS-2026-0001": "Published result",
-  "SMS-2026-0004": "Closed assessment result",
+  "SMS-2026-0007": "Nothing submitted yet — try a first upload",
+  "SMS-2026-0008": "Published result without a submission",
   "SMS-2025-0001": "Historic completed-student result",
 };

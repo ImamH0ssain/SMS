@@ -302,7 +302,7 @@ erDiagram
 - **Conflict detection.** Every update names the version it was based on, and the database update only succeeds if that version is still current. A stale update is rejected with `409` and the user is told the result changed elsewhere.
 - **Grading grid.** The grid is the combined, de-duplicated list of eligible students, students with an existing submission, and students with an existing result. Staff can grade every one of them. A student who withdrew after submitting remains gradeable, and a student who never submitted is shown as not submitted.
 - **Overdue balances.** Publishing for a student with an overdue balance shows a warning and needs an explicit confirmation, which is written to the audit trail. It does not block publication, because deciding that is a Registry judgement, not a system rule.
-- **Early publication.** Publishing a result before the assessment's deadline has passed shows an informational warning.
+- **Early publication.** A result that is published before the assessment's deadline has passed is flagged in the grading grid, so it is easy to spot and reconsider.
 - **Student projection.** Everything a student sees is filtered by their own id and the Published status at the query level. A draft or withheld result is indistinguishable from no result.
 
 ## 8. Uploads and file storage

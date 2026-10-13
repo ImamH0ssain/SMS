@@ -1,33 +1,84 @@
-# SMS Registry Agent Guide
+# Working on SMS Registry
 
-## Read order
+A guide for anyone changing this codebase, whether a person or a coding agent. It explains what the project is, how to run and verify it, and the rules that keep it correct. For setup and usage see the [README](README.md); for the full design see [Docs/ARCHITECTURE.md](Docs/ARCHITECTURE.md).
 
-1. This file
-2. `Docs/ARCHITECTURE.md`
-3. `Docs/DECISIONS.md`
-4. `Docs/AI_LOG.md`
+## What this is
 
-## Current state
+A Registry module for a Student Management System. It covers four workflows: student enrolment, fees and payments, assessment submissions, and results publishing. It is built with Next.js 16 (App Router), React 19, TypeScript, PostgreSQL, Prisma 7, Tailwind CSS 4 and Zod. Staff and student roles are enforced on the server. Sign-in is a demo mechanism with seeded accounts and no passwords.
 
-Write and update the current state here.
+## Commands
 
-## Non-negotiable rules
+```bash
+npm ci                     # install (also generates the Prisma client)
+npm run setup              # generate client, apply migrations, load demo data
+npm run dev                # development server on http://localhost:3000
+npm run build && npm run start    # production build and server
 
-- Work in WSL at `/mnt/d/Projects/SMS`; source/Git stay on `D:` for IDE compatibility. Activate `.venv` for Python support tools and use the WSL Node runtime documented in the README. Do not attempt dependency bind mounts or cross-filesystem symlinks in this workspace; they were tested and are unreliable on this WSL setup.
-- Never commit `.env`, `.uploads`, `.venv`, credentials, or the confidential assessment PDF.
-- Use PostgreSQL and Prisma; never replace persisted data with client `useState` mocks.
-- Every mutation is authorized server-side, validates input, records an audit event, and changes schema only with a migration, seed update, and test update.
-- Read installed-version documentation before using framework-specific APIs.
-- Update this file's current state, the plan checkbox, and `Docs/AI_LOG.md` after each completed milestone.
+npm run lint
+npm run typecheck
+npm run test               # unit tests
+npm run test:integration   # PostgreSQL integration tests (uses TEST_DATABASE_URL)
+npm run test:e2e           # Playwright browser tests with axe
+```
 
-## Required verification
+Integration tests need the separate test database. If its container was recreated, run `bash scripts/migrate-test-db.sh` first. Settings live in `.env` (copy `.env.example`).
 
-- `npm run lint`, `npm run typecheck`, `npm run test`, `npm run test:integration`, and `npm run build` before completion where the local dependencies exist.
-- End gate: a clean clone must sign in at HTTP localhost using both `npm run dev` and `npm run build && npm run start`.
+## Before you call a change finished
 
-## Current verification facts
+Run lint, type checking, the unit tests and the integration tests, and run `npm run build` for anything that touches routing, configuration, server or client boundaries. Report what you actually ran and what it printed. If a check could not run, say so rather than assuming it passes. For interface changes, click through the affected pages as both staff and a student.
 
-- WSL Node 24.20.0 is available through the project's WSL Node installation; `npm run lint`, `npm run typecheck`, `npm run test` (35 unit tests), and `npm run test:integration` (26 PostgreSQL-backed/API and submission-lifecycle tests) pass from the WSL checkout. WSL Chromium installation is blocked by the current Ubuntu 26.04 Playwright platform support, so the four Playwright/axe tests were verified with the installed Windows Chrome binary against a WSL-backed production server; all passed.
-- `npm run db:reset` was re-run successfully on October 12, 2026, applying migration `0001_initial` and reseeding the development database before the latest full validation.
-- Docker Desktop is installed but its CLI is not on PATH. Use `C:\Program Files\Docker\Docker\resources\bin\docker.exe` from Windows to manage `compose.yaml`; containers expose development PostgreSQL at `localhost:5432` and test PostgreSQL at `localhost:5433`.
-- `npm run setup` applied the migration and seeded the development database. WSL development and production servers returned HTTP 200 for the persona picker and staff routes; the seeded Student persona loaded the student home successfully. The seed/persona walkthrough and mutation audit matrix are documented.
+## Where things live
+
+| Path | Contents |
+|---|---|
+| `src/app/staff`, `src/app/student` | Pages for each role |
+| `src/app/actions` | Server actions |
+| `src/app/api` | JSON route handlers |
+| `src/features/<area>` | Business logic: `students`, `finance`, `assessments`, `submissions`, `results` |
+| `src/components` | Shared components; `ui/` holds base primitives |
+| `src/lib` | Session, environment, errors, money, clock and formatting, storage |
+| `prisma` | Schema, migrations, seed |
+| `tests` | Integration and browser tests |
+
+## Rules that matter
+
+**Access control**
+- Every page, server action and route handler must call its own guard (`requireStaff`, `requireStudent` or `requireOwnStudent`). Do not rely on a layout or on `proxy.ts` for protection.
+- The session cookie identifies the user and nothing else. Role and student link are always loaded from the database.
+- Student-facing queries must filter by the student's own id, and for results by the Published status, inside the query itself. A draft or withheld result must be indistinguishable from none.
+- Another student's resource returns 404, not 403.
+
+**Data and rules**
+- Put business rules in the feature services so pages, actions and the API share them. Do not duplicate a rule in a component or a route.
+- Every state change writes its audit event in the same transaction as the change.
+- Money is an integer number of pennies. Parse it with the shared money helpers and never use floating-point arithmetic for amounts.
+- Format dates with the shared `formatDate` and `formatDateTime` helpers. Deadlines use the organisation time zone; date-only values such as fee due dates and dates of birth are formatted in UTC.
+- Balances are derived (fee plus adjustments minus active payments). Do not add a stored balance.
+- Payments, adjustments, audit events and submission revisions are append-only. Correct mistakes with a void or an adjustment, not an edit.
+- Anything that checks a balance or limit and then writes must do so inside a transaction that locks the relevant row.
+- Validate input with Zod and the domain rules at the edge, and return errors in the standard envelope: `{ error: { code, message, fieldErrors } }`.
+
+**Uploads**
+- Only PDF and DOCX, up to `MAX_UPLOAD_MB` (at most 4). Decide by file content, not by extension or declared type. Store under random names outside `public/` and never serve a file without an access check.
+
+**Schema changes**
+- Any schema change needs a migration, an update to the seed, and a test. Keep database constraints in step with the rules in code.
+
+**Interface**
+- Forms are full pages with field-level errors and an announced summary. Status is always text as well as colour. Prefer native controls where they are sufficient.
+
+## Framework notes
+
+Next.js 16 and Prisma 7 differ from older versions in ways that are easy to get wrong from memory: request APIs such as `params`, `searchParams` and `cookies()` are asynchronous, middleware is now `proxy.ts`, and Prisma's connection settings live in `prisma.config.ts` and use a driver adapter. Check the documentation shipped with the installed versions before using an API you are unsure about.
+
+## Things not to do
+
+- Do not commit `.env`, `.uploads`, credentials, or the assessment brief.
+- Do not widen the demo mechanism, or enable it in a shared deployment, without replacing it with real authentication.
+- Do not store files under `public/` or by their original names.
+- Do not use `db:reset` against anything but a local database. The script refuses non-local hosts; keep it that way.
+- Do not commit generated output such as the Prisma client, build folders or test reports.
+
+## Documentation
+
+Keep the documents in step with the code. If you change behaviour, update the relevant page: [README](README.md) for setup and usage, [Docs/ARCHITECTURE.md](Docs/ARCHITECTURE.md) for design and rules, [Docs/DECISIONS.md](Docs/DECISIONS.md) when you make a judgement call, and [Docs/AI_LOG.md](Docs/AI_LOG.md) when AI tools materially shaped the work.
