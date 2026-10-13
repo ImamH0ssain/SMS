@@ -9,6 +9,7 @@ import { studentAssessments } from "@/features/assessments/service";
 import { balanceForAssignment } from "@/features/finance/service";
 import { isOverdue } from "@/features/finance/rules";
 import { organisationDate } from "@/lib/clock";
+import { formatDate } from "@/lib/clock";
 import { formatMoney } from "@/lib/money";
 import { prisma } from "@/lib/prisma";
 import { requireStudent } from "@/lib/session";
@@ -22,7 +23,7 @@ export default async function StudentHomePage() {
   const openAssessments = assessments.filter((assessment) => !assessment.closedAt).length;
   const cards = [
     { label: "Current balance", value: finance ? formatMoney(finance.balanceMinor) : "—", icon: WalletCards, tone: overdue ? "bg-rose-50 text-rose-700" : "bg-blue-50 text-blue-700", href: "/student/home" },
-    { label: "Fee due date", value: finance?.assignment.dueDate.toLocaleDateString("en-GB") ?? "—", icon: CalendarDays, tone: "bg-slate-100 text-slate-700", href: "/student/home" },
+    { label: "Fee due date", value: finance ? formatDate(finance.assignment.dueDate) : "—", icon: CalendarDays, tone: "bg-slate-100 text-slate-700", href: "/student/home" },
     { label: "Open assessments", value: String(openAssessments), icon: BookOpenCheck, tone: "bg-emerald-50 text-emerald-700", href: "/student/assessments" },
     { label: "Published results", value: String(published), icon: Award, tone: "bg-violet-50 text-violet-700", href: "/student/results" },
   ];

@@ -81,13 +81,14 @@ function PersonaGroup({
       {personas.map((person) => {
         const destination = person.role === "REGISTRY_STAFF" ? "/staff/dashboard" : "/student/home";
         const detail = person.role === "REGISTRY_STAFF" ? "Registry Staff" : `${person.student?.studentCode} · ${person.student?.programme.name}`;
+        const hint = person.role === "STUDENT" ? studentPersonaHints[person.student?.studentCode ?? ""] : undefined;
         return <Card key={person.id} className="group overflow-hidden transition-[box-shadow,border-color] hover:border-blue-300 hover:shadow-md">
           <CardContent className="p-0">
             <form action={signInAs} className="h-full">
               <input type="hidden" name="userId" value={person.id} />
               <input type="hidden" name="destination" value={destination} />
               <Button type="submit" variant="ghost" className="h-auto w-full justify-between rounded-none p-5 text-left hover:bg-blue-50/60">
-                <span className="min-w-0"><span className="block truncate text-sm font-semibold text-slate-950">{person.name}</span><span className="mt-1 block truncate text-xs font-normal text-slate-500">{detail}</span></span>
+                <span className="min-w-0"><span className="block truncate text-sm font-semibold text-slate-950">{person.name}</span><span className="mt-1 block truncate text-xs font-normal text-slate-500">{detail}</span>{hint ? <span className="mt-1 block text-xs font-normal text-blue-700">{hint}</span> : null}</span>
                 <ArrowRight aria-hidden="true" className="size-4 shrink-0 text-slate-400 transition-transform group-hover:translate-x-0.5 group-hover:text-blue-700" />
               </Button>
             </form>
@@ -97,3 +98,13 @@ function PersonaGroup({
     </div>
   </section>;
 }
+
+const studentPersonaHints: Record<string, string> = {
+  "SMS-2026-0002": "Withheld result — academic integrity review",
+  "SMS-2026-0003": "Late submission — withdrawn student",
+  "SMS-2026-0005": "Resubmission history and published result",
+  "SMS-2026-0006": "Published result before assessment deadline",
+  "SMS-2026-0001": "Published result",
+  "SMS-2026-0004": "Closed assessment result",
+  "SMS-2025-0001": "Historic completed-student result",
+};

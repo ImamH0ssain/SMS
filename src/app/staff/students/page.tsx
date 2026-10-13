@@ -22,7 +22,7 @@ export default async function StudentsPage({ searchParams }: { searchParams: Pro
   const page = Number.isInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
   const pageSize = 20;
   const where: Prisma.StudentWhereInput = {
-    ...(query ? { OR: [{ fullName: { contains: query, mode: "insensitive" } }, { studentCode: { startsWith: query, mode: "insensitive" } }] } : {}),
+    ...(query ? { OR: [{ fullName: { contains: query, mode: "insensitive" } }, { studentCode: { contains: query, mode: "insensitive" } }] } : {}),
     ...(status ? { status: status as EnrolmentStatus } : {}),
     ...(programmeId ? { programmeId } : {}),
     ...(academicYear ? { academicYear } : {}),

@@ -5,7 +5,7 @@ This walkthrough records the seeded browser checks completed during the Copilot 
 ## Environment
 
 - WSL2 Ubuntu 26.04 at `/mnt/d/Projects/SMS`
-- Node 24.20.0 from `/home/imamh/.nvm`
+- Node 24.20.0 from the project's WSL Node installation
 - Docker Desktop PostgreSQL: development `localhost:5432`, integration `localhost:5433`
 - `ENABLE_DEMO_SESSION=true`, `COOKIE_SECURE=auto`
 

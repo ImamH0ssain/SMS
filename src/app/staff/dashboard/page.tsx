@@ -10,9 +10,10 @@ import { prisma } from "@/lib/prisma";
 import { formatMoney } from "@/lib/money";
 
 import { requireStaff } from "@/lib/session";
+import { formatDate } from "@/lib/clock";
 
 export default async function StaffDashboard() {
-  await requireStaff();
+  const staffUser = await requireStaff();
   const [overdue, openAssessments, drafts, withheld] = await Promise.all([
     overdueAccounts(),
     prisma.assessment.count({ where: { closedAt: null } }),
@@ -27,7 +28,7 @@ export default async function StaffDashboard() {
   ];
 
   return <div className="space-y-7">
-    <PageHeader eyebrow="Registry work queue" title="Good morning, Registry" description="Prioritise overdue balances, assessment deadlines, and result publication decisions." />
+    <PageHeader eyebrow="Registry work queue" title={`Welcome, ${staffUser.name.split(" ")[0]}`} description="Prioritise overdue balances, assessment deadlines, and result publication decisions." />
 
     <section aria-label="Work queue counts" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
       {workItems.map(({ label, value, href, icon: Icon, tone }) => <Link key={label} href={href} className="group rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-blue-600">
@@ -56,7 +57,7 @@ export default async function StaffDashboard() {
               <td className="px-5 py-4"><Link href={`/staff/students/${student.studentCode}`} className="font-semibold text-blue-700 hover:underline">{student.fullName}<span className="mt-0.5 block text-xs font-normal text-slate-500">{student.studentCode}</span></Link></td>
               <td className="px-4 py-4"><StatusBadge value={student.status} /></td>
               <td className="px-4 py-4 font-semibold tabular-nums text-slate-950">{formatMoney(balanceMinor)}</td>
-              <td className="px-4 py-4 whitespace-nowrap text-slate-700">{dueDate.toLocaleDateString("en-GB")}</td>
+              <td className="px-4 py-4 whitespace-nowrap text-slate-700">{formatDate(dueDate)}</td>
               <td className="px-5 py-4"><Badge variant="danger">{daysOverdue} day{daysOverdue === 1 ? "" : "s"}</Badge></td>
             </tr>) : <tr><td colSpan={5} className="px-5 py-12 text-center text-sm text-slate-600">No overdue accounts. Good work.</td></tr>}
           </tbody>

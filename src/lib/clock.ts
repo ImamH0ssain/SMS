@@ -21,3 +21,18 @@ export function organisationDate(value = now()): Date {
   const field = (type: string) => parts.find((part) => part.type === type)?.value;
   return new Date(`${field("year")}-${field("month")}-${field("day")}T00:00:00.000Z`);
 }
+
+const dateParts = { day: "numeric", month: "short", year: "numeric" } as const;
+
+export function formatDate(value: Date) {
+  return new Intl.DateTimeFormat("en-GB", { ...dateParts, timeZone: "UTC" }).format(value);
+}
+
+export function formatDateTime(value: Date) {
+  return new Intl.DateTimeFormat("en-GB", {
+    ...dateParts,
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: env.ORGANIZATION_TIMEZONE,
+  }).format(value);
+}
